@@ -1,0 +1,42 @@
+<ion-content [fullscreen]="true">
+  <ion-card>
+    <img alt="Mi imagen" src="assets/logo.app.png" width="100%" />
+    <ion-card-header>
+      <ion-card-subtitle>Introduzca sus credenciales</ion-card-subtitle>
+      <ion-card-title>Registrese </ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <ion-input labelPlacement="floating" [(ngModel)]="user.email">
+        <div slot="label">Correo Electrónico</div>
+      </ion-input>
+
+      <ion-input
+        type="password"
+        labelPlacement="floating"
+        [(ngModel)]="user.password"
+      >
+        <div slot="label">Contraseña</div>
+      </ion-input>
+
+      <ion-button
+        class="ion-padding"
+        (click)="register(user)"
+        expand="full"
+        fill="solid"
+        shape="round"
+      >
+        Registrarse
+      </ion-button>
+
+      <ion-button
+        (click)="navigateToLogin()"
+        expand="block"
+        fill="clear"
+        shape="round"
+      >
+        Inciar Sesión
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

@@ -1,6 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { Storage } from '@ionic/storage';
+import { User } from '../models/user.model';
+import {
+  LoadingController,
+  NavController,
+  ToastController,
+} from '@ionic/angular';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
@@ -8,42 +17,84 @@ import { Router } from '@angular/router';
   providers: [HttpClient],
 })
 export class HomePage implements OnInit {
-  user: string;
-  password: string;
-  isAlertOpen = false;
-  alertButtons = ['Ok'];
-  alertTitle: string = '';
-  alertMsg: string = '';
+  user = {} as User;
 
-  constructor(private http: HttpClient, private router: Router) {
-    this.user = '';
-    this.password = '';
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private storage: Storage,
+    private toastCtrl: ToastController,
+    private loadingCtrl: LoadingController,
+    private afAuth: AngularFireAuth,
+    private navCtrl: NavController
+  ) {
+    this.initStorage();
+    this.storage.set('userLog', null);
   }
 
   ngOnInit() {
-    console.log('Home');
+    console.log('login');
   }
 
-  async verifyCredentials() {
-    if (this.user != '' && this.password != '') {
-      if (this.user == 'alejandro' && this.password == '123') {
-        this.http
-          .get('https://randomuser.me/api/')
-          .subscribe((response: any) => {
-            console.log(response.results[0]['name']['first'] + ' '+response.results[0]['name']['last']);
-			this.router.navigate(['/main']);
+  async initStorage() {
+    await this.storage.create();
+  }
+
+  navigateToRegister() {
+    this.router.navigate(['/register']);
+  }
+
+  async login(user: User) {
+    if (this.formValidation()) {
+      let loader = await this.loadingCtrl.create({
+        message: 'Cargando',
+      });
+      await loader.present();
+
+      try {
+        await this.afAuth
+          .signInWithEmailAndPassword(user.email, user.password)
+          .then((data) => {
+            console.log(data);
+
+            this.navCtrl.navigateRoot('main');
           });
-      } else {
-        this.setOpen(true, 'Atención', 'Rectifique sus crendenciales');
+      } catch (e: any) {
+        e.message = 'Error al registrarse';
+        let errorMessage = e.message || e.getLocalizedMessage();
+
+        console.log(e);
+        if (e.code == 'auth/invalid-credential')
+          this.showToast('Rectifique sus credenciales');
+        else if (e.code == 'auth/invalid-email')
+          this.showToast('Correo electrónico incorrecto');
+        else this.showToast(errorMessage);
       }
-    } else {
-      this.setOpen(true, 'Atención', 'Campos Requeridos');
+
+      await loader.dismiss();
     }
   }
 
-  setOpen(isOpen: boolean, title: any = '', msg: any = '') {
-    this.isAlertOpen = isOpen;
-    this.alertTitle = title;
-    this.alertMsg = msg;
+  formValidation() {
+    if (!this.user.email) {
+      this.showToast('Ingrese un email');
+      return false;
+    }
+
+    if (!this.user.password) {
+      this.showToast('Ingrese una contraseña');
+      return false;
+    }
+
+    return true;
+  }
+
+  showToast(message: string) {
+    this.toastCtrl
+      .create({
+        message: message,
+        duration: 2500,
+      })
+      .then((toastData) => toastData.present());
   }
 }
