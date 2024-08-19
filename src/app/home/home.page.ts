@@ -9,6 +9,7 @@ import {
   ToastController,
 } from '@ionic/angular';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { ClientLogService } from '../client-log.service';
 
 @Component({
   selector: 'app-home',
@@ -18,7 +19,8 @@ import { AngularFireAuth } from '@angular/fire/compat/auth';
 })
 export class HomePage implements OnInit {
   user = {} as User;
-
+  credentialSave = {};
+  
   constructor(
     private http: HttpClient,
     private router: Router,
@@ -26,10 +28,11 @@ export class HomePage implements OnInit {
     private toastCtrl: ToastController,
     private loadingCtrl: LoadingController,
     private afAuth: AngularFireAuth,
-    private navCtrl: NavController
+    private navCtrl: NavController,
+    private clientLogService: ClientLogService
   ) {
     this.initStorage();
-    this.storage.set('userLog', null);
+	this.clientLogService.setClientLog('');
   }
 
   ngOnInit() {
@@ -38,6 +41,11 @@ export class HomePage implements OnInit {
 
   async initStorage() {
     await this.storage.create();
+    this.credentialSave = [
+      this.storage.get('email'),
+      this.storage.get('password'),
+    ];
+    console.log(this.credentialSave);
   }
 
   navigateToRegister() {
@@ -55,8 +63,15 @@ export class HomePage implements OnInit {
         await this.afAuth
           .signInWithEmailAndPassword(user.email, user.password)
           .then((data) => {
-            console.log(data);
-
+            if (data.user) {
+              this.clientLogService.setClientLog({
+                uid: data.user.uid,
+                email: data.user.email,
+              });
+              console.log(data.user);
+            }
+            this.storage.set('email', user.email);
+            this.storage.set('password', user.password);
             this.navCtrl.navigateRoot('main');
           });
       } catch (e: any) {

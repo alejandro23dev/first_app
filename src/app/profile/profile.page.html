@@ -1,17 +1,31 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>Inicio</ion-title>
+    <ion-title>Perfil</ion-title>
   </ion-toolbar>
 </ion-header>
 <ion-content>
-  <div class="main-content">Content</div>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Datos de Perfil</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+		<ion-input labelPlacement="floating" [(ngModel)]="email">
+			<div slot="label">Correo Electrónico</div>
+		</ion-input>
+      </ion-card-content>
+    </ion-card>
+
   <ion-tabs>
     <ion-tab-bar slot="bottom">
       <ion-tab-button [routerLink]="['/main']" [routerLinkActive]="['active']">
         <ion-icon name="home-outline"></ion-icon>
         Inicio
       </ion-tab-button>
-      <ion-tab-button [routerLink]="['/profile']" [routerLinkActive]="['active']">
+      <ion-tab-button
+        [routerLink]="['/profile']"
+        [routerLinkActive]="['active']"
+      >
         <ion-icon name="person-outline"></ion-icon>
         Perfil
       </ion-tab-button>

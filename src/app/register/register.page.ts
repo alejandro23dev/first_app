@@ -54,7 +54,6 @@ export class RegisterPage implements OnInit {
           .createUserWithEmailAndPassword(user.email, user.password)
           .then((data) => {
             console.log(data);
-
             this.navCtrl.navigateRoot('login');
           });
       } catch (e: any) {

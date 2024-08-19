@@ -19,4 +19,8 @@ export class MainPage implements OnInit {
   logout() {
     this.router.navigate(['/login']);
   }
+
+  navigateToProfile() {
+    this.router.navigate(['/profile']);
+  }
 }
